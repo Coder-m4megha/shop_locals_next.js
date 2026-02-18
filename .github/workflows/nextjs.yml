@@ -56,6 +56,8 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
         with:
+          # Automatically enable GitHub Pages if not already enabled
+          enablement: true
           # Automatically inject basePath in your Next.js configuration file and disable
           # server side image optimization (https://nextjs.org/docs/api-reference/next/image#unoptimized).
           #
@@ -74,6 +76,8 @@ jobs:
       - name: Install dependencies
         run: ${{ steps.detect-package-manager.outputs.manager }} ${{ steps.detect-package-manager.outputs.command }}
       - name: Build with Next.js
+        env:
+          OUTPUT_MODE: export
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
