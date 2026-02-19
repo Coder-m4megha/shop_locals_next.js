@@ -1,3 +1,8 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 let userConfig = undefined;
 try {
   userConfig = await import('./v0-user-next.config');
@@ -28,11 +33,17 @@ const nextConfig = {
   // Middleware-specific settings
   skipMiddlewareUrlNormalize: false,
   skipTrailingSlashRedirect: false,
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     config.watchOptions = {
       ...config.watchOptions,
       poll: 1000,
       aggregateTimeout: 300,
+    };
+    // Ensure @/ alias resolves (fixes Vercel/build "Module not found" for @/components/ui/*)
+    config.resolve = config.resolve || {};
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': path.resolve(__dirname, '.'),
     };
     return config;
   },

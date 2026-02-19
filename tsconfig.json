@@ -18,8 +18,9 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]  // Changed from "./*" to "./src/*" for better structure
+      "@/*": ["./*"]
     },
     "typeRoots": ["./types", "./node_modules/@types"]  // Added this line
   },
