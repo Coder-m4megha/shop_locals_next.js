@@ -2,8 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { writeFile } from "fs/promises"
-import { join } from "path"
+import { put } from "@vercel/blob"
 
 export async function POST(request: Request) {
   try {
@@ -18,32 +17,26 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
-    // Validate file type
     if (!file.type.startsWith("image/")) {
       return NextResponse.json({ error: "File must be an image" }, { status: 400 })
     }
 
-    // Create unique filename
-    const bytes = await file.arrayBuffer()
-    const buffer = Buffer.from(bytes)
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`
-    const filename = `${uniqueSuffix}-${file.name}`
-    
-    // Save file to public directory
-    const uploadDir = join(process.cwd(), "public", "uploads", "profile-photos")
-    const filepath = join(uploadDir, filename)
-    await writeFile(filepath, buffer)
+    const filename = `profile-${session.user.id}-${uniqueSuffix}.${file.name.split('.').pop() || 'jpg'}`
 
-    // Update user profile with new photo URL
-    const photoUrl = `/uploads/profile-photos/${filename}`
+    const blob = await put(filename, file, {
+      access: "public",
+      addRandomSuffix: true,
+    })
+
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { image: photoUrl }
+      data: { image: blob.url }
     })
 
     return NextResponse.json({ 
       success: true, 
-      photoUrl 
+      photoUrl: blob.url 
     })
   } catch (error) {
     console.error("Error uploading photo:", error)
@@ -52,4 +45,4 @@ export async function POST(request: Request) {
       { status: 500 }
     )
   }
-} 
+}
