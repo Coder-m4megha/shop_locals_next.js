@@ -229,21 +229,42 @@ export const seedProducts = async () => {
       },
     ]
 
-    console.log('Deleting existing products...')
+    console.log('Cleaning up existing products...')
 
-    // Delete existing products first to ensure clean data
+    // Delete related records first (foreign key constraints)
     try {
+      const productIds = products.map(p => p.id)
+      const productSkus = products.map(p => p.sku).filter(Boolean)
+      
+      // Delete related records first
+      await prisma.orderItem.deleteMany({
+        where: {
+          productId: { in: productIds }
+        }
+      })
+      await prisma.cartItem.deleteMany({
+        where: {
+          productId: { in: productIds }
+        }
+      })
+      await prisma.wishlistItem.deleteMany({
+        where: {
+          productId: { in: productIds }
+        }
+      })
+      
+      // Now delete products
       await prisma.product.deleteMany({
         where: {
           OR: [
-            { id: { in: products.map(p => p.id) } },
-            { sku: { in: products.map(p => p.sku) } }
+            { id: { in: productIds } },
+            { sku: { in: productSkus } }
           ]
         }
       })
-      console.log('Deleted existing products')
+      console.log('Cleaned up existing products and related records')
     } catch (error) {
-      console.error('Error deleting products:', error)
+      console.warn('Note: Some products may have existing relationships. Continuing with upsert...', error)
     }
 
     // Create products one by one

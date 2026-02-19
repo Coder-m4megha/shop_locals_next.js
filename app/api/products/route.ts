@@ -63,12 +63,20 @@ export async function GET(request: NextRequest) {
       }
     })
 
-    // Transform products to include parsed imageUrls and tags
+    // Transform products to include parsed imageUrls and tags (safe parse for invalid JSON)
+    const safeParseJson = (str: string | null, fallback: string[]): string[] => {
+      if (str == null || str === '') return fallback
+      try {
+        const parsed = JSON.parse(str)
+        return Array.isArray(parsed) ? parsed : fallback
+      } catch {
+        return fallback
+      }
+    }
     const transformedProducts = products.map(product => ({
       ...product,
-      images: JSON.parse(product.imageUrls || '[]'),
-      tags: JSON.parse(product.tags || '[]'),
-      // Keep the original imageUrls for compatibility
+      images: safeParseJson(product.imageUrls, []),
+      tags: safeParseJson(product.tags, []),
       imageUrls: product.imageUrls
     }))
 
