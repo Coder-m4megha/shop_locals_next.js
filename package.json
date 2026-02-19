@@ -69,18 +69,18 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "^0.9.6",
-    "zod": "^3.23.8"
+    "zod": "^3.23.8",
+    "typescript": "^5.3.3",
+    "@types/node": "^18.19.8"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/bcryptjs": "^2.4.6",
-    "@types/node": "^18.19.8",
     "@types/react": "^18.2.79",
     "@types/react-dom": "^18.2.25",
     "@types/uuid": "^10.0.0",
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.17",
-    "tsx": "^4.20.3",
-    "typescript": "^5.3.3"
+    "tsx": "^4.20.3"
   }
 }
